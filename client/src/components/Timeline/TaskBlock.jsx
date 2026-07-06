@@ -26,7 +26,8 @@ export default function TaskBlock({ task, startHour, totalHours, canEdit, canRea
   const left = timeToPercent(task.startTime, startHour, totalHours);
   const width = durationPercent(task.startTime, task.endTime, totalHours);
 
-  const isActive = task.status === 'IN_PROGRESS';
+  const nowHHMM = (() => { const n = new Date(); return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; })();
+  const isActive = task.status !== 'COMPLETED' && task.startTime <= nowHHMM && nowHHMM < task.endTime;
   const nextStatus = STATUS_NEXT[task.status];
   // Supervisor can reactivate a completed task back to NOT_STARTED
   const reactivating = task.status === 'COMPLETED' && canReactivate;
