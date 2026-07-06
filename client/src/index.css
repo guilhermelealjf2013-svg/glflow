@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --timeline-col-width: 80px;
+    --timeline-row-height: 64px;
+    --timeline-label-width: 180px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  }
+
+  .dark body {
+    @apply bg-gray-950 text-gray-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-600 text-white font-medium text-sm
+           hover:bg-brand-700 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200
+           dark:border-gray-700 text-gray-700 dark:text-gray-200 font-medium text-sm
+           hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 transition-all duration-150;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-medium text-sm
+           hover:bg-red-700 active:scale-95 transition-all duration-150;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm;
+  }
+
+  .input {
+    @apply w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700
+           bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+           placeholder-gray-400 dark:placeholder-gray-500
+           focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm transition;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+  }
+
+  /* Timeline styles */
+  .timeline-grid {
+    display: grid;
+    grid-template-columns: var(--timeline-label-width) repeat(var(--col-count, 10), var(--timeline-col-width));
+  }
+
+  .task-block {
+    @apply absolute top-1 bottom-1 rounded-md flex items-center px-2 text-xs font-medium
+           text-white cursor-pointer select-none overflow-hidden transition-all duration-200
+           hover:brightness-110 hover:shadow-md;
+  }
+
+  .task-block-active {
+    @apply absolute top-0 bottom-0 rounded-md flex items-center px-3 text-sm font-semibold
+           text-white cursor-pointer select-none overflow-hidden z-20
+           shadow-2xl;
+    /* pulsing glow using the task color via a CSS custom property */
+    animation: task-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes task-glow {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 6px var(--task-color, #6366f1)); }
+    50%       { filter: brightness(1.12) drop-shadow(0 0 14px var(--task-color, #6366f1)); }
+  }
+
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-600 rounded-full; }

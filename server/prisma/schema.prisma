@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  SUPERVISOR
+  REPRESENTATIVE
+}
+
+enum WorkloadType {
+  SIX_TWENTY    // 06:20
+  EIGHT_TWELVE  // 08:12
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum PresenceStatus {
+  ONLINE
+  AWAY
+  OFFLINE
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  supervisorId String?
+  supervisor  User?    @relation("TeamSupervisor", fields: [supervisorId], references: [id])
+  members     User[]   @relation("TeamMembers")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String
+  registration  String       @unique
+  username      String       @unique
+  passwordHash  String
+  role          Role         @default(REPRESENTATIVE)
+  workload      WorkloadType?
+  loginTime     String?      // "HH:MM"
+  logoutTime    String?      // "HH:MM"
+  teamId        String?
+  team          Team?        @relation("TeamMembers", fields: [teamId], references: [id])
+  supervisedTeams Team[]     @relation("TeamSupervisor")
+  tasks         Task[]
+  pauses        Pause[]
+  presenceLogs  PresenceLog[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model TaskType {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#6366f1")
+  tasks     Task[]
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id             String     @id @default(cuid())
+  title          String
+  typeId         String
+  type           TaskType   @relation(fields: [typeId], references: [id])
+  representativeId String
+  representative User       @relation(fields: [representativeId], references: [id])
+  date           String     // "YYYY-MM-DD"
+  startTime      String     // "HH:MM"
+  endTime        String     // "HH:MM"
+  status         TaskStatus @default(NOT_STARTED)
+  notes          String?
+  createdById    String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model Pause {
+  id             String   @id @default(cuid())
+  representativeId String
+  representative User     @relation(fields: [representativeId], references: [id])
+  label          String   // "Pausa 1", "Pausa 2", "Pausa 3"
+  startTime      String   // "HH:MM"
+  endTime        String   // "HH:MM"
+  date           String   // "YYYY-MM-DD" — null = template/default
+  isTemplate     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+}
+
+model PresenceLog {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  status    PresenceStatus
+  timestamp DateTime       @default(now())
+}
