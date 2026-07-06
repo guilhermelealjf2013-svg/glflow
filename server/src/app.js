@@ -4,7 +4,14 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+const allowedOrigins = (process.env.CLIENT_URL || '').split(',').map(s => s.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.some(o => origin === o || origin.endsWith('.vercel.app'))) return cb(null, true);
+    cb(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth'));

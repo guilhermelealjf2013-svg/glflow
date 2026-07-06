@@ -16,7 +16,11 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: (origin, cb) => {
+    if (!origin || !origin.includes('://') || origin.endsWith('.vercel.app')) return cb(null, true);
+    const allowed = (process.env.CLIENT_URL || '').split(',').map(s => s.trim());
+    cb(allowed.includes(origin) ? null : new Error('Not allowed by CORS'), true);
+  },
     credentials: true,
   },
 });
